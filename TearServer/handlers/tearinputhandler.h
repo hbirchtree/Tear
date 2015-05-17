@@ -25,7 +25,7 @@ public:
 
 public slots:
     void interpretSignal(QByteArray* data);
-    void interpretSignal(qint16 t,qint64 v1,qint64 v2);
+    void interpretSignalDirect(qint16 t,qint64 v1,qint64 v2);
 
 signals:
 

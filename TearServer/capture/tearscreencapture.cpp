@@ -22,7 +22,14 @@ void TearScreenCapture::capture()
 
     QByteArray *frame = new QByteArray(qCompress(frame_f,5));
 
-    newFrame(frame);
+    //When the timer is stopped, some frames are redundant.
+    //We delete these when there are no receivers for the newFrame() signal
+    //In early releases, this was a blatant memory leak as packets
+    // are only disposed of *if they are sent* normally.
+    if( receivers(SIGNAL(newFrame(QByteArray*))) > 0)
+        newFrame(frame);
+    else
+        delete frame;
 }
 
 void TearScreenCapture::run()
@@ -36,12 +43,10 @@ void TearScreenCapture::run()
 
     QEventLoop l;
     l.exec();
-    qDebug() << "A/V thread quitting";
 }
 
 void TearScreenCapture::start()
 {
-    qDebug("Timer Thread: %p, %p",this->thread(),timeywimey->thread());
     timeywimey->start();
 }
 

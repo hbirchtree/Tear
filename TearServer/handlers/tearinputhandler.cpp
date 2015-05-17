@@ -20,7 +20,7 @@ InputHandlerObjectInterface *TearInputHandler::loadInputHandler(QString file, QO
 
 void TearInputHandler::addHandlerMapping(int type,InputHandlerObjectInterface *handler)
 {
-    connect(handler,SIGNAL(pass__input(qint16,qint64,qint64)),SLOT(interpretSignal(qint16,qint64,qint64)));
+    connect(handler,SIGNAL(pass__input(qint16,qint64,qint64)),SLOT(interpretSignalDirect(qint16,qint64,qint64)));
     handlerMappings.insert(type,handler);
 }
 
@@ -48,10 +48,10 @@ void TearInputHandler::interpretSignal(QByteArray *data)
     if(t.size()<3)
         qDebug() << "Bad input:" << *data;
 
-    interpretSignal(t.at(0).toInt(),t.at(1).toInt(),t.at(2).toInt());
+    interpretSignalDirect(t.at(0).toInt(),t.at(1).toInt(),t.at(2).toInt());
 }
 
-void TearInputHandler::interpretSignal(qint16 t, qint64 v1, qint64 v2)
+void TearInputHandler::interpretSignalDirect(qint16 t, qint64 v1, qint64 v2)
 {
     if(handlerMappings.contains(t))
         handlerMappings.value(t)->take__input(t,v1,v2);

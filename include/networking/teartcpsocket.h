@@ -13,6 +13,7 @@ public:
     QAbstractSocket::SocketState getSocketState() const;
     QHostAddress getHostAddress() const;
     quint16 getLocalPort() const;
+    QHostAddress getLocalAddress() const;
     quint16 getHostPort() const;
     QString getHostName() const;
 

@@ -35,24 +35,28 @@ TearServer::TearServer(QWidget *parent) :
 
     //Initialize networking
     netman = new TearNetworkManager(this);
+    netman->setInterface(QNetworkInterface::interfaceFromName("eth0"));
 
     qDebug("Network interface: %s",netman->getInterface().humanReadableName().toStdString().c_str());
 
     connect(netman,&TearNetworkManager::newConnection,[=](TearTCPSocket* socket,QHostAddress host,quint16 port){
         if(port==inputPort){
-            socket->sendData(TearClientHandler::generateWelcomePacket());
+            socket->sendData(TearClientHandler::generateWelcomePacket(socket->getLocalAddress().toString(),avPort));
+            connect(socket,&TearTCPSocket::packetReceived,
+                    inputHandler,&TearInputHandler::interpretSignal,Qt::QueuedConnection);
         }else if(port==avPort){
             connect(screencap,SIGNAL(newFrame(QByteArray*)),socket,SLOT(sendData(QByteArray*)));
+            qDebug() << "Starting screen capturing";
             startScreencap();
-            connect(socket,SIGNAL(socketClosing()),screencap,SLOT(stop()),Qt::QueuedConnection);
+            connect(socket,&TearTCPSocket::socketClosing,[=](){
+                qDebug() << "Stopping screen capturing";
+                stopScreencap();
+            });
         }
     });
 
     netman->registerNewListeningPort(inputPort);
     netman->registerNewListeningPort(avPort);
-
-
-    startScreencap();
 
     //The basics on using a TearTCPSocket, not much more than this
 //    netman->registerNewConnection(&test,QHostAddress("127.0.0.1"),46600);
@@ -108,7 +112,7 @@ void TearServer::defaultMessageHandler(QtMsgType t, const QMessageLogContext &co
                 .arg(context.line)
                 .arg(m_msg.constData());
     }
-//    tearInstance->appendLog(out);
+    tearInstance->appendLog(out);
     fprintf(stderr,"%s\n",out.toStdString().c_str());
 }
 

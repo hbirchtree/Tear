@@ -5,7 +5,7 @@ TearClientHandler::TearClientHandler(QObject *parent) : QObject(parent)
 
 }
 
-QByteArray *TearClientHandler::generateWelcomePacket()
+QByteArray *TearClientHandler::generateWelcomePacket(QString currentHost,int currentAvPort)
 {
     QDesktopWidget dw;
     int display = dw.primaryScreen();
@@ -17,7 +17,10 @@ QByteArray *TearClientHandler::generateWelcomePacket()
             dw.screenGeometry(display).width() <<
             dw.screenGeometry(display).height();
     data.insert("t",StreamerSharedProperties::SD_CommandSignal);
-    data.insert("screen-dims",dims);
+    data.insert("c",(int)StreamCmdFlags::AvDescriptor|StreamCmdFlags::ScreenDimensions);
+    data.insert("d",dims);
+    data.insert("h",currentHost);
+    data.insert("p",currentAvPort);
 
     QJsonDocument doc;
     doc.setObject(data);

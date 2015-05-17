@@ -16,7 +16,7 @@ class TearClientHandler : public QObject
 public:
     TearClientHandler(QObject *parent);
 
-    static QByteArray *generateWelcomePacket();
+    static QByteArray *generateWelcomePacket(QString currentHost, int currentAvPort);
 
 signals:
 

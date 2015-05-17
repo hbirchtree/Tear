@@ -9,6 +9,7 @@ ApplicationWindow {
     width: 640
     height: 480
     visible: true
+    color: "black"
 
     menuBar: MenuBar {
         Menu {
@@ -16,7 +17,8 @@ ApplicationWindow {
             MenuItem {
                 text: qsTr("&Open")
                 onTriggered: {
-                    test.socketConnect("127.0.0.1",46601)
+//                    test.socketConnect("127.0.0.1",46601)
+                    inputSocket.socketConnect("192.168.10.108",46600)
                 }
             }
             MenuItem {
@@ -27,8 +29,22 @@ ApplicationWindow {
     }
 
     TearPainter {
-        id: test
+        id: displayPainter
         anchors.fill:parent
+        antialiasing: true
+    }
+    TearInputSocket {
+        id: inputSocket
+        onAnnounceAVSource: {
+            displayPainter.socketConnect(host,port)
+        }
+    }
+
+    MouseArea {
+        anchors.fill:parent
+        onClicked: {
+            inputSocket.sendInput(5,100,100)
+        }
     }
 
     MessageDialog {

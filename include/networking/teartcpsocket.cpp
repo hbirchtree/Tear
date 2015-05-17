@@ -28,6 +28,11 @@ quint16 TearTCPSocket::getLocalPort() const
     return sock->localPort();
 }
 
+QHostAddress TearTCPSocket::getLocalAddress() const
+{
+    return sock->localAddress();
+}
+
 quint16 TearTCPSocket::getHostPort() const
 {
     return sock->peerPort();
@@ -67,12 +72,15 @@ void TearTCPSocket::socketConnect()
 void TearTCPSocket::socketDisconnect()
 {
     sock->disconnectFromHost();
+    socketClosing();
 }
 
 void TearTCPSocket::handleError(QAbstractSocket::SocketError err)
 {
     Q_UNUSED(err);
     qDebug("Socket error: %s",sock->errorString().toStdString().c_str());
+//    if(err==QAbstractSocket::RemoteHostClosedError)
+//        socketClosing();
 }
 
 void TearTCPSocket::initSocket(QTcpSocket *socket)
@@ -82,6 +90,7 @@ void TearTCPSocket::initSocket(QTcpSocket *socket)
     });
     connect(socket,&QTcpSocket::disconnected,[=](){
         connectionChanged(QTcpSocket::UnconnectedState);
+        socketClosing();
         this->deleteLater();
     });
     connect(socket,&QTcpSocket::aboutToClose,[=](){

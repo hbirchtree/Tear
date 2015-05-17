@@ -12,7 +12,24 @@ public:
     TearPainter(QQuickItem* parent = 0) : QQuickPaintedItem(parent){}
 
     void paint(QPainter *painter){
-        painter->drawImage(QRect(0,0,this->width(),this->height()),drawable,QRect(0,0,drawable.width(),drawable.height()));
+        QRect target(0,0,this->width(),this->height());
+        QRect source(0,0,drawable.width(),drawable.height());
+        float da = (float)this->width()/(float)this->height();//display aspect ratio
+        float sa = (float)source.width()/(float)source.height();//source aspect ratio
+
+        //We scale it to fit the screen with its original aspect ratio
+        //We also center it on screen
+        if(da<sa){
+            target.setHeight(this->width()/sa);
+            target.setWidth(this->width());
+            target.setY((this->height()-target.height())/2);
+        }else if(da>sa){
+            target.setHeight(this->height());
+            target.setWidth(this->height()*sa);
+            target.setX((this->width()-target.width())/2);
+        }
+        painter->setRenderHints(QPainter::Antialiasing);
+        painter->drawImage(target,drawable,source);
     }
 
 public slots:
@@ -22,6 +39,7 @@ public slots:
         sock = new TearTCPSocket(this,QHostAddress(host),port);
         connect(sock,&TearTCPSocket::packetReceived,[=](QByteArray* data){
             QByteArray uc = qUncompress(*data);
+            delete data;
             QDataStream ser(&uc,QIODevice::ReadOnly);
             ser >> drawable;
             update();
