@@ -17,10 +17,14 @@ void TearScreenCapture::capture()
 
     QByteArray frame_f;
 
-    QDataStream ser(&frame_f,QIODevice::WriteOnly);
-    ser << vp;
+//    QDataStream ser(&frame_f,QIODevice::WriteOnly);
+//    ser << vp;
+    QBuffer buff;
+    buff.setBuffer(&frame_f);
+    buff.open(QIODevice::WriteOnly);
+    vp.save(&buff,"JPEG");
 
-    QByteArray *frame = new QByteArray(qCompress(frame_f,5));
+    QByteArray *frame = new QByteArray(qCompress(frame_f,9));
 
     //When the timer is stopped, some frames are redundant.
     //We delete these when there are no receivers for the newFrame() signal

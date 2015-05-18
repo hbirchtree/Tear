@@ -37,14 +37,30 @@ TearServer::TearServer(QWidget *parent) :
     netman = new TearNetworkManager(this);
     netman->setInterface(QNetworkInterface::interfaceFromName("eth0"));
 
+    qDebug("Main thread: %p",this->thread());
     qDebug("Network interface: %s",netman->getInterface().humanReadableName().toStdString().c_str());
 
     connect(netman,&TearNetworkManager::newConnection,[=](TearTCPSocket* socket,QHostAddress host,quint16 port){
         if(port==inputPort){
             socket->sendData(TearClientHandler::generateWelcomePacket(socket->getLocalAddress().toString(),avPort));
-            connect(socket,&TearTCPSocket::packetReceived,
-                    inputHandler,&TearInputHandler::interpretSignal,Qt::QueuedConnection);
+            connect(socket,&TearTCPSocket::packetReceived,[=](QByteArray* data){
+                QVariantMap d = QJsonDocument::fromJson(*data).object().toVariantMap();
+                switch(d.value("t").toInt()){
+                case StreamerSharedProperties::SD_InputSignal:{
+                    QVariantList i = d.value("v").toList();
+                    if(i.size()!=3)
+                        break;
+                    inputHandler->interpretSignalDirect(
+                                i.at(0).toInt(),
+                                i.at(1).toLongLong(),
+                                i.at(2).toLongLong());
+                    break;
+                }
+                }
+            });
         }else if(port==avPort){
+            socket->setParent(0);
+            socket->moveToThread(capthread);
             connect(screencap,SIGNAL(newFrame(QByteArray*)),socket,SLOT(sendData(QByteArray*)));
             qDebug() << "Starting screen capturing";
             startScreencap();

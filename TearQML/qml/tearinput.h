@@ -16,6 +16,8 @@ class TearInput : public QObject {
     Q_OBJECT
 public slots:
     void sendInput(int type, int val1, int val2){
+        if(!connected)
+            return;
         QJsonObject d;
         QJsonArray i;
         i << type << val1 << val2;

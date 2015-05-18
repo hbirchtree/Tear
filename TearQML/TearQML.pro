@@ -9,7 +9,8 @@ SOURCES += main.cpp \
 HEADERS += \
     ../include/networking/teartcpsocket.h \
     qml/tearpainter.h \
-    qml/tearinput.h
+    qml/tearinput.h \
+    qml/eventcapture.h
 
 RESOURCES += qml.qrc
 

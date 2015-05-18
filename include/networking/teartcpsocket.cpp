@@ -47,7 +47,7 @@ QString TearTCPSocket::getHostName() const
 void TearTCPSocket::sendData(QByteArray *data)
 {
     quint32 s = (quint32)data->size();
-    qDebug() << "Size:" << s;
+    qDebug("Size: %i, Thread: %p",s,this->thread());
     QByteArray s_buf;
     QDataStream s_str(&s_buf,QIODevice::WriteOnly);
     s_str << s;
@@ -124,7 +124,8 @@ void TearTCPSocket::initSocket(QTcpSocket *socket)
             }
         }
     });
-    connect(socket,SIGNAL(error(QAbstractSocket::SocketError)),SLOT(handleError(QAbstractSocket::SocketError)));
+    connect(socket,SIGNAL(error(QAbstractSocket::SocketError)),
+            SLOT(handleError(QAbstractSocket::SocketError)));
     sock = socket;
 }
 

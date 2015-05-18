@@ -1,10 +1,13 @@
 #ifndef TEARPAINTER
 #define TEARPAINTER
 
+#include "common.h"
 #include <QQuickPaintedItem>
 #include <QPainter>
+#include <QBuffer>
 #include "networking/teartcpsocket.h"
 class TearPainter : public QQuickPaintedItem {
+    Q_PROPERTY(QRect targetArea READ targetArea WRITE setTargetArea NOTIFY targetAreaChanged)
 
     Q_OBJECT
 
@@ -29,7 +32,11 @@ public:
             target.setX((this->width()-target.width())/2);
         }
         painter->setRenderHints(QPainter::Antialiasing);
+        setTargetArea(target);
         painter->drawImage(target,drawable,source);
+    }
+    QRect targetArea() const{
+        return target;
     }
 
 public slots:
@@ -38,10 +45,14 @@ public slots:
             sock->deleteLater();
         sock = new TearTCPSocket(this,QHostAddress(host),port);
         connect(sock,&TearTCPSocket::packetReceived,[=](QByteArray* data){
-            QByteArray uc = qUncompress(*data);
+//            QByteArray uc = qUncompress(*data);
+//            QDataStream ser(&uc,QIODevice::ReadOnly);
+//            ser >> drawable;
+            QBuffer buff;
+            buff.setData(qUncompress(*data));
             delete data;
-            QDataStream ser(&uc,QIODevice::ReadOnly);
-            ser >> drawable;
+            drawable.load(&buff,"JPEG");
+
             update();
         });
         sock->socketConnect();
@@ -51,9 +62,23 @@ public slots:
         sock = nullptr;
     }
 
+    void setTargetArea(QRect targetArea)
+    {
+        if (m_targetArea == targetArea)
+            return;
+
+        m_targetArea = targetArea;
+        emit targetAreaChanged(targetArea);
+    }
+
+signals:
+    void targetAreaChanged(QRect targetArea);
+
 private:
+    QRect target;
     TearTCPSocket* sock = nullptr;
     QImage drawable;
+    QRect m_targetArea;
 };
 
 #endif // TEARPAINTER

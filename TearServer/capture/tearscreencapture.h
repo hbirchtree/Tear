@@ -8,6 +8,7 @@
 #include <QImage>
 #include <QPixmap>
 #include <QDataStream>
+#include <QBuffer>
 #include <QEventLoop>
 
 class TearScreenCapture : public QObject

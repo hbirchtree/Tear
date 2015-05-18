@@ -45,8 +45,10 @@ void TearInputHandler::interpretSignal(QByteArray *data)
     QJsonDocument doc;
     doc = QJsonDocument::fromJson(*data);
     QVariantList t = doc.array().toVariantList();
-    if(t.size()<3)
+    if(t.size()<3){
         qDebug() << "Bad input:" << *data;
+        return;
+    }
 
     interpretSignalDirect(t.at(0).toInt(),t.at(1).toInt(),t.at(2).toInt());
 }
