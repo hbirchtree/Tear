@@ -1,0 +1,5 @@
+#ifndef EVENTCAPTURE
+#define EVENTCAPTURE
+
+#endif // EVENTCAPTURE
+
