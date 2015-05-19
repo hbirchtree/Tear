@@ -17,7 +17,7 @@ ApplicationWindow {
             title: qsTr("&File")
             MenuItem {
                 text: qsTr("C&onnect")
-                onTriggered: inputSocket.socketConnect("192.168.10.108",46600)
+                onTriggered: inputSocket.socketConnect("192.168.43.131",46600)
             }
             MenuItem {
                 text: qsTr("&Disconnect")

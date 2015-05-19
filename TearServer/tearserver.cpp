@@ -35,7 +35,7 @@ TearServer::TearServer(QWidget *parent) :
 
     //Initialize networking
     netman = new TearNetworkManager(this);
-    netman->setInterface(QNetworkInterface::interfaceFromName("eth0"));
+    netman->setInterface(QNetworkInterface::interfaceFromName("wlan0"));
 
     qDebug("Main thread: %p",this->thread());
     qDebug("Network interface: %s",netman->getInterface().humanReadableName().toStdString().c_str());
