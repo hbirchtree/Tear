@@ -17,11 +17,16 @@ ApplicationWindow {
             title: qsTr("&File")
             MenuItem {
                 text: qsTr("C&onnect")
-                onTriggered: inputSocket.socketConnect("192.168.43.131",46600)
+                onTriggered: {
+                    inputSocket.socketDisconnect()
+                    connector.visible = true
+                }
             }
             MenuItem {
+                id: menuDisconnect
                 text: qsTr("&Disconnect")
                 onTriggered: inputSocket.socketDisconnect()
+                enabled: false
             }
             MenuItem {
                 text: qsTr("&Settings")
@@ -45,10 +50,17 @@ ApplicationWindow {
     TearInputSocket {
         id: inputSocket
         onAnnounceAVSource: {
+            //It just doesn't work when running across the network. Too constipated. We need a video stream.
 //            displayPainter.socketConnect(host,port)
         }
         onAnnounceScreenDimensions: {
             inputArea.mouseArea = Qt.rect(x,y,w,h)
+        }
+        onAnnounceConnected: {
+            menuDisconnect.enabled = true
+        }
+        onAnnounceDisconnected: {
+            menuDisconnect.enabled = false
         }
     }
 
@@ -70,25 +82,6 @@ ApplicationWindow {
         }
     }
 
-//    ControlPanel {
-//        id: settings
-//        onEnableGyro: {
-//            gyroscope.active = state
-//            console.log("Gyro:"+state)
-//        }
-//        onEnableKeyboard: {
-//            inputArea.captureKeys = state
-//            console.log("Keyboard:"+state)
-//        }
-//        onEnableMouse: {
-//            inputArea.captureMouse = state
-//            console.log("Mouse:"+state)
-//        }
-//        onEnableMouseHover: {
-//            inputArea.tapClick = !state
-//            console.log("Hover:"+state)
-//        }
-//    }
     ControlWidget{
         id: settings
         anchors.fill:parent
@@ -99,6 +92,15 @@ ApplicationWindow {
         }
         close.onClicked: {
             settings.visible=false
+        }
+    }
+    ConnectDialog {
+        id: connector
+        anchors.fill:parent
+        visible: false
+        onRequestConnect: {
+            inputSocket.socketConnect(host,port)
+            visible = false
         }
     }
 }

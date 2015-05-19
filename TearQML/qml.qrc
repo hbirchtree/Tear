@@ -4,5 +4,7 @@
         <file>ControlPanel.qml</file>
         <file>ControlWidget.qml</file>
         <file>ControlWidgetForm.ui.qml</file>
+        <file>ConnectDialog.qml</file>
+        <file>ConnectDialogForm.ui.qml</file>
     </qresource>
 </RCC>
